@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Dot-Notion</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>16×16 Pixel Art</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:transparent;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.c{background:#fff;border-radius:20px;padding:30px;width:100%;max-width:500px;box-shadow:0 2px 8px rgba(0,0,0,.1)}.ctrl{margin-bottom:20px}.row{display:flex;gap:10px;margin-bottom:10px;align-items:center}.cp-w{flex:1;display:flex;gap:10px;align-items:center}.cp{width:60px;height:60px;border:3px solid #e0e0e0;border-radius:12px;cursor:pointer;transition:border-color .2s}.cp:hover{border-color:#667eea}.tb{flex:1;padding:15px;font-size:14px;font-weight:bold;border:2px solid #e0e0e0;border-radius:12px;cursor:pointer;background:#fff;color:#444;transition:all .2s;text-align:center}.tb:hover{border-color:#667eea;background:#f5f7ff}.tb.active{background:#667eea;color:#fff;border-color:#667eea}.tb:disabled{opacity:.3;cursor:not-allowed}.tb:disabled:hover{border-color:#e0e0e0;background:#fff}.cw{margin-bottom:20px;display:flex;justify-content:center}.pc{display:inline-grid;grid-template-columns:repeat(16,1fr);gap:1px;background:#ddd;padding:1px;border-radius:8px;user-select:none;touch-action:none}.px{width:20px;height:20px;background-image:linear-gradient(45deg,#f0f0f0 25%,transparent 25%,transparent 75%,#f0f0f0 75%),linear-gradient(45deg,#f0f0f0 25%,transparent 25%,transparent 75%,#f0f0f0 75%);background-size:10px 10px;background-position:0 0,5px 5px;background-color:#fff;cursor:crosshair;transition:border-color .15s,filter .15s,transform .15s;border:2px solid transparent;outline:none}.px:hover{border-color:#667eea;filter:brightness(.9);transform:scale(1.05)}.ab{display:flex;gap:10px}.ub,.rb{flex:.5;padding:12px;font-size:16px;font-weight:bold;border:2px solid #e0e0e0;border-radius:12px;cursor:pointer;background:#fff;color:#444;transition:all .2s}.ub:hover:not(:disabled),.rb:hover:not(:disabled){border-color:#667eea;background:#f5f7ff;transform:translateY(-1px)}.ub:disabled,.rb:disabled{opacity:.3;cursor:not-allowed}.cb{flex:.6;padding:12px;font-size:14px;font-weight:bold;border:2px solid #d1d5db;border-radius:12px;cursor:pointer;background:#fff;color:#6b7280;transition:all .2s}.cb:hover{border-color:#9ca3af;background:#f9fafb;transform:translateY(-1px)}.cpb{flex:1.4;padding:15px;font-size:16px;font-weight:bold;border:none;border-radius:12px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#5e89e6,#a78bfa);box-shadow:0 4px 15px rgba(94,137,230,.4);transition:all .2s}.cpb:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(94,137,230,.6)}.fb{text-align:center;margin-top:10px;font-size:14px;color:#667eea;font-weight:600;min-height:20px}@media(max-width:600px){.c{padding:20px}.px{width:16px;height:16px;background-size:8px 8px;background-position:0 0,4px 4px}}
+</style>
+</head>
+<body>
+<div class="c">
+<div class="ctrl">
+<div class="row">
+<div class="cp-w">
+<input type="color" id="cp" class="cp" value="#000000">
+<div style="flex:1;font-size:14px;font-weight:600;color:#666">Color</div>
+</div>
+<button class="tb active" id="pb" onclick="st('pen')">Pen</button>
+<button class="tb" id="eb" onclick="st('eraser')">Eraser</button>
+<button class="tb" id="fb" onclick="st('fill')">Fill</button>
+</div>
+</div>
+<div class="cw"><div class="pc" id="cv"></div></div>
+<div class="ab">
+<button class="ub" id="ub" onclick="undo()" disabled>←</button>
+<button class="rb" id="rb" onclick="redo()" disabled>→</button>
+<button class="cb" onclick="clr()">Clear</button>
+<button class="cpb" onclick="cpy()">Copy</button>
+</div>
+<div id="feed" class="fb"></div>
+</div>
+<script>
+const cv=document.getElementById('cv'),cp=document.getElementById('cp'),pb=document.getElementById('pb'),eb=document.getElementById('eb'),fb=document.getElementById('fb'),ub=document.getElementById('ub'),rb=document.getElementById('rb');let px=[],dr=false,t='pen',h=[],hi=-1;function init(){for(let i=0;i<256;i++){const p=document.createElement('div');p.className='px';p.dataset.i=i;p.dataset.p='0';p.onmousedown=e=>{e.preventDefault();if(t=='fill'){ff(p);sv()}else{dr=true;d(p)}};p.onmouseenter=()=>{if(dr&&t!='fill')d(p)};p.onmouseup=()=>sp();cv.appendChild(p);px.push(p)}document.onmouseup=()=>sp();sv()}function sv(){const s=px.map(p=>({b:p.style.background,p:p.dataset.p}));h=h.slice(0,hi+1);h.push(s);hi++;ur()}function rs(s){px.forEach((p,i)=>{p.style.background=s[i].b;p.dataset.p=s[i].p})}function undo(){if(hi>0){hi--;rs(h[hi]);ur()}}function redo(){if(hi<h.length-1){hi++;rs(h[hi]);ur()}}function ur(){ub.disabled=hi<=0;rb.disabled=hi>=h.length-1}function st(tool){t=tool;pb.classList.toggle('active',tool=='pen');eb.classList.toggle('active',tool=='eraser');fb.classList.toggle('active',tool=='fill')}function d(p){if(t=='eraser'){p.style.background='';p.dataset.p='0'}else if(t=='pen'){p.style.background=cp.value;p.dataset.p='1'}}function ff(sp){const tc=sp.dataset.p=='1'?sp.style.background:'',fc=t=='eraser'?'':cp.value;if(tc==fc)return;const si=parseInt(sp.dataset.i),q=[si],v=new Set();while(q.length>0){const i=q.shift();if(v.has(i))continue;v.add(i);const p=px[i],cc=p.dataset.p=='1'?p.style.background:'';if(cc!=tc)continue;if(t=='eraser'){p.style.background='';p.dataset.p='0'}else{p.style.background=fc;p.dataset.p='1'}const x=i%16,y=Math.floor(i/16);if(x>0)q.push(i-1);if(x<15)q.push(i+1);if(y>0)q.push(i-16);if(y<15)q.push(i+16)}}function sp(){if(dr){dr=false;sv()}}function clr(){if(!confirm('Clear all?'))return;px.forEach(p=>{p.style.background='';p.dataset.p='0'});sv();sh('Cleared')}async function cpy(){const tc=document.createElement('canvas');tc.width=512;tc.height=512;const ctx=tc.getContext('2d');ctx.clearRect(0,0,512,512);for(let i=0;i<256;i++){const p=px[i];if(p.dataset.p=='1'){ctx.fillStyle=p.style.background;ctx.fillRect((i%16)*32,Math.floor(i/16)*32,32,32)}}try{const b=await new Promise(r=>tc.toBlob(r,'image/png'));await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);sh('Copied! ✨')}catch{sh('Failed')}}function sh(m){const f=document.getElementById('feed');f.textContent=m;setTimeout(()=>f.textContent='',3e3)}init()
+</script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
