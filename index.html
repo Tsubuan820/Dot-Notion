@@ -42,7 +42,14 @@ body{font-family:-apple-system,sans-serif;background:transparent;min-height:100v
 .cpb{flex:1.4;padding:15px;font-size:16px;font-weight:bold;border:none;border-radius:12px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#5e89e6,#a78bfa);box-shadow:0 4px 15px rgba(94,137,230,.4);transition:all .2s}
 .cpb:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(94,137,230,.6)}
 .fb{text-align:center;margin-top:10px;font-size:14px;color:#667eea;font-weight:600;min-height:20px}
-@media(max-width:600px){.c{padding:20px}.px{width:16px;height:16px;background-size:8px 8px;background-position:0 0,4px 4px}}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-c{background:#fff;border-radius:20px;padding:30px;max-width:600px;width:100%;text-align:center}
+.modal-c img{width:256px;height:256px;image-rendering:pixelated;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.2);margin:20px 0}
+.modal-c h3{margin-bottom:10px;color:#667eea;font-size:20px}
+.modal-c p{color:#6b7280;margin-bottom:20px;line-height:1.6;font-size:14px}
+.close-btn{padding:12px 30px;font-size:14px;font-weight:bold;border:none;border-radius:12px;cursor:pointer;color:#fff;background:#667eea;transition:all .2s}
+.close-btn:hover{background:#5568d3;transform:translateY(-1px)}
+@media(max-width:600px){.c{padding:20px}.px{width:16px;height:16px;background-size:8px 8px;background-position:0 0,4px 4px}.modal-c img{width:200px;height:200px}}
 </style>
 </head>
 <body>
@@ -63,12 +70,20 @@ body{font-family:-apple-system,sans-serif;background:transparent;min-height:100v
 <button class="ub" id="ub" onclick="undo()" disabled>←</button>
 <button class="ub" id="rb" onclick="redo()" disabled>→</button>
 <button class="cb" onclick="clr()">Clear</button>
-<button class="cpb" onclick="cpy()">Copy</button>
+<button class="cpb" onclick="prev()">Preview</button>
 </div>
 <div id="feed" class="fb"></div>
 </div>
+<div class="modal" id="modal" onclick="closeModal()">
+<div class="modal-c" onclick="event.stopPropagation()">
+<h3>✨ Your Pixel Art</h3>
+<img id="img">
+<p><strong>Right-click</strong> to copy or download<br>Then use it in Notion! 🎨</p>
+<button class="close-btn" onclick="closeModal()">Close</button>
+</div>
+</div>
 <script>
-const cv=document.getElementById('cv'),cp=document.getElementById('cp'),pb=document.getElementById('pb'),eb=document.getElementById('eb'),fb=document.getElementById('fb'),ub=document.getElementById('ub'),rb=document.getElementById('rb');
+const cv=document.getElementById('cv'),cp=document.getElementById('cp'),pb=document.getElementById('pb'),eb=document.getElementById('eb'),fb=document.getElementById('fb'),ub=document.getElementById('ub'),rb=document.getElementById('rb'),modal=document.getElementById('modal'),img=document.getElementById('img');
 let px=[],dr=false,t='pen',h=[],hi=-1;
 function init(){for(let i=0;i<256;i++){const p=document.createElement('div');p.className='px';p.dataset.i=i;p.dataset.p='0';p.onmousedown=e=>{e.preventDefault();if(t=='fill'){ff(p);sv()}else{dr=true;d(p)}};p.onmouseenter=()=>{if(dr&&t!='fill')d(p)};p.onmouseup=()=>sp();cv.appendChild(p);px.push(p)}document.onmouseup=()=>sp();sv()}
 function sv(){const s=px.map(p=>({b:p.style.background,p:p.dataset.p}));h=h.slice(0,hi+1);h.push(s);hi++;ur()}
@@ -81,7 +96,8 @@ function d(p){if(t=='eraser'){p.style.background='';p.dataset.p='0'}else if(t=='
 function ff(sp){const tc=sp.dataset.p=='1'?sp.style.background:'',fc=t=='eraser'?'':cp.value;if(tc==fc)return;const si=parseInt(sp.dataset.i),q=[si],v=new Set();while(q.length>0){const i=q.shift();if(v.has(i))continue;v.add(i);const p=px[i],cc=p.dataset.p=='1'?p.style.background:'';if(cc!=tc)continue;if(t=='eraser'){p.style.background='';p.dataset.p='0'}else{p.style.background=fc;p.dataset.p='1'}const x=i%16,y=Math.floor(i/16);if(x>0)q.push(i-1);if(x<15)q.push(i+1);if(y>0)q.push(i-16);if(y<15)q.push(i+16)}}
 function sp(){if(dr){dr=false;sv()}}
 function clr(){px.forEach(p=>{p.style.background='';p.dataset.p='0'});sv();sh('Cleared ✨')}
-async function cpy(){const tc=document.createElement('canvas');tc.width=512;tc.height=512;const ctx=tc.getContext('2d');ctx.clearRect(0,0,512,512);for(let i=0;i<256;i++){const p=px[i];if(p.dataset.p=='1'){ctx.fillStyle=p.style.background;ctx.fillRect((i%16)*32,Math.floor(i/16)*32,32,32)}}try{const b=await new Promise(r=>tc.toBlob(r,'image/png'));await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);sh('Copied! ✨')}catch(e){try{const url=tc.toDataURL('image/png');const ta=document.createElement('textarea');ta.value=url;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);sh('Copied as Data URL! Paste to download ✨')}catch(e2){tc.toBlob(b=>{const url=URL.createObjectURL(b);const a=document.createElement('a');a.href=url;a.download='pixel-art.png';a.click();URL.revokeObjectURL(url);sh('Downloaded! ✨')},'image/png')}}}
+function prev(){const tc=document.createElement('canvas');tc.width=512;tc.height=512;const ctx=tc.getContext('2d');ctx.clearRect(0,0,512,512);for(let i=0;i<256;i++){const p=px[i];if(p.dataset.p=='1'){ctx.fillStyle=p.style.background;ctx.fillRect((i%16)*32,Math.floor(i/16)*32,32,32)}}img.src=tc.toDataURL('image/png');modal.style.display='flex'}
+function closeModal(){modal.style.display='none'}
 function sh(m){const f=document.getElementById('feed');f.textContent=m;setTimeout(()=>f.textContent='',3e3)}
 init()
 </script>
