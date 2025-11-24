@@ -61,7 +61,7 @@ body{font-family:-apple-system,sans-serif;background:transparent;min-height:100v
 <div class="cw"><div class="pc" id="cv"></div></div>
 <div class="ab">
 <button class="ub" id="ub" onclick="undo()" disabled>←</button>
-<button class="rb" id="rb" onclick="redo()" disabled>→</button>
+<button class="ub" id="rb" onclick="redo()" disabled>→</button>
 <button class="cb" onclick="clr()">Clear</button>
 <button class="cpb" onclick="cpy()">Copy</button>
 </div>
@@ -70,17 +70,7 @@ body{font-family:-apple-system,sans-serif;background:transparent;min-height:100v
 <script>
 const cv=document.getElementById('cv'),cp=document.getElementById('cp'),pb=document.getElementById('pb'),eb=document.getElementById('eb'),fb=document.getElementById('fb'),ub=document.getElementById('ub'),rb=document.getElementById('rb');
 let px=[],dr=false,t='pen',h=[],hi=-1;
-function init(){
-for(let i=0;i<256;i++){
-const p=document.createElement('div');
-p.className='px';p.dataset.i=i;p.dataset.p='0';
-p.onmousedown=e=>{e.preventDefault();if(t=='fill'){ff(p);sv()}else{dr=true;d(p)}};
-p.onmouseenter=()=>{if(dr&&t!='fill')d(p)};
-p.onmouseup=()=>sp();
-cv.appendChild(p);px.push(p)
-}
-document.onmouseup=()=>sp();sv()
-}
+function init(){for(let i=0;i<256;i++){const p=document.createElement('div');p.className='px';p.dataset.i=i;p.dataset.p='0';p.onmousedown=e=>{e.preventDefault();if(t=='fill'){ff(p);sv()}else{dr=true;d(p)}};p.onmouseenter=()=>{if(dr&&t!='fill')d(p)};p.onmouseup=()=>sp();cv.appendChild(p);px.push(p)}document.onmouseup=()=>sp();sv()}
 function sv(){const s=px.map(p=>({b:p.style.background,p:p.dataset.p}));h=h.slice(0,hi+1);h.push(s);hi++;ur()}
 function rs(s){px.forEach((p,i)=>{p.style.background=s[i].b;p.dataset.p=s[i].p})}
 function undo(){if(hi>0){hi--;rs(h[hi]);ur()}}
@@ -88,27 +78,10 @@ function redo(){if(hi<h.length-1){hi++;rs(h[hi]);ur()}}
 function ur(){ub.disabled=hi<=0;rb.disabled=hi>=h.length-1}
 function st(tool){t=tool;pb.classList.toggle('active',tool=='pen');eb.classList.toggle('active',tool=='eraser');fb.classList.toggle('active',tool=='fill')}
 function d(p){if(t=='eraser'){p.style.background='';p.dataset.p='0'}else if(t=='pen'){p.style.background=cp.value;p.dataset.p='1'}}
-function ff(sp){
-const tc=sp.dataset.p=='1'?sp.style.background:'',fc=t=='eraser'?'':cp.value;
-if(tc==fc)return;
-const si=parseInt(sp.dataset.i),q=[si],v=new Set();
-while(q.length>0){
-const i=q.shift();if(v.has(i))continue;v.add(i);
-const p=px[i],cc=p.dataset.p=='1'?p.style.background:'';
-if(cc!=tc)continue;
-if(t=='eraser'){p.style.background='';p.dataset.p='0'}else{p.style.background=fc;p.dataset.p='1'}
-const x=i%16,y=Math.floor(i/16);
-if(x>0)q.push(i-1);if(x<15)q.push(i+1);if(y>0)q.push(i-16);if(y<15)q.push(i+16)
-}
-}
+function ff(sp){const tc=sp.dataset.p=='1'?sp.style.background:'',fc=t=='eraser'?'':cp.value;if(tc==fc)return;const si=parseInt(sp.dataset.i),q=[si],v=new Set();while(q.length>0){const i=q.shift();if(v.has(i))continue;v.add(i);const p=px[i],cc=p.dataset.p=='1'?p.style.background:'';if(cc!=tc)continue;if(t=='eraser'){p.style.background='';p.dataset.p='0'}else{p.style.background=fc;p.dataset.p='1'}const x=i%16,y=Math.floor(i/16);if(x>0)q.push(i-1);if(x<15)q.push(i+1);if(y>0)q.push(i-16);if(y<15)q.push(i+16)}}
 function sp(){if(dr){dr=false;sv()}}
 function clr(){if(!confirm('Clear all?'))return;px.forEach(p=>{p.style.background='';p.dataset.p='0'});sv();sh('Cleared')}
-async function cpy(){
-const tc=document.createElement('canvas');tc.width=512;tc.height=512;
-const ctx=tc.getContext('2d');ctx.clearRect(0,0,512,512);
-for(let i=0;i<256;i++){const p=px[i];if(p.dataset.p=='1'){ctx.fillStyle=p.style.background;ctx.fillRect((i%16)*32,Math.floor(i/16)*32,32,32)}}
-try{const b=await new Promise(r=>tc.toBlob(r,'image/png'));await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);sh('Copied! ✨')}catch{sh('Failed')}
-}
+async function cpy(){const tc=document.createElement('canvas');tc.width=512;tc.height=512;const ctx=tc.getContext('2d');ctx.clearRect(0,0,512,512);for(let i=0;i<256;i++){const p=px[i];if(p.dataset.p=='1'){ctx.fillStyle=p.style.background;ctx.fillRect((i%16)*32,Math.floor(i/16)*32,32,32)}}try{const b=await new Promise(r=>tc.toBlob(r,'image/png'));await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);sh('Copied! ✨')}catch{sh('Failed')}}
 function sh(m){const f=document.getElementById('feed');f.textContent=m;setTimeout(()=>f.textContent='',3e3)}
 init()
 </script>
